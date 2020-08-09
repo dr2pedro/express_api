@@ -13,7 +13,7 @@ describe('app', () => {
   })
 })
 
-var user = {"username":"dr2p","password": "MDUxMzA0Nzkx","email":"dr2p@hotmail.com","created_at":"2020-08-04T22:52:33.619Z","last_access":["2020-08-04T22:52:33.619Z"]}
+var user = {"username":"dr2p","email":"dr2p@hotmail.com","created_at":"2020-08-04T22:52:33.619Z","last_access":["2020-08-04T22:52:33.619Z"]}
 
 describe('app', () => {
   it('Test POST method for /', (done) => {
@@ -41,7 +41,7 @@ describe('app', () => {
   })
 })
 
-var user2 = {"username":"dr2p","password": "MDUxMzA0Nzkx","email":"pedoidin@gmail.com","created_at":"2020-08-04T22:52:33.619Z","last_access":["2020-08-04T22:52:33.619Z"]}
+var user2 = {"username":"dr2p","email":"pedoidin@gmail.com","created_at":"2020-08-04T22:52:33.619Z","last_access":["2020-08-04T22:52:33.619Z"]}
 
 describe('app', () => {
   it('Test PUT one', (done) => {

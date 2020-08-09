@@ -13,7 +13,7 @@ const users = db.get('users')
 const cors = require('cors')
 
 /* Esse é o validador do joi. Para uma simples API de Sign up precisa-se de ao menos três campos no form: username, password, e-email. */
-const schema = require('./schema_db.js')
+const schema = require('./schema.js')
 
 // resumindo o express.Router para um nome só.
 const router = express.Router()
@@ -46,7 +46,7 @@ router.post('/', cors(), async (req, res, next) => {
 })
 
 // READ ONE
-router.get('/:id', cors(), async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   // repare que a agora existe um parâmetro id ao final da URI.
   try {
     // esse parâmetro precisa ser capturado aqui.
@@ -94,7 +94,7 @@ router.put('/:id', cors(), async (req, res, next) => {
 })
 
 // DELETE ONE
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', cors(), async (req, res, next) => {
   try {
     const { id } = req.params
     await users.remove({
