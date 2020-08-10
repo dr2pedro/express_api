@@ -1,7 +1,9 @@
 const request = require('supertest')
 const app = require('../src/app')
+const bodyParser = require ('body-parser')
 
-
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: false}))
 
 describe('app', () => {
   it('Test GET all', (done) => {
@@ -9,11 +11,18 @@ describe('app', () => {
       .get('/')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(200, done)
+      .expect(200)
+      .end(function(err, res){
+        if(err){
+          return done(err)
+        }
+        console.log(res.body)
+        done()
+      })
   })
 })
 
-var user = {"username":"dr2p","email":"dr2p@hotmail.com","created_at":"2020-08-04T22:52:33.619Z","last_access":["2020-08-04T22:52:33.619Z"]}
+var user = {"username":"dr2p","email":"dr2p@hotmail.com"}
 
 describe('app', () => {
   it('Test POST method for /', (done) => {
@@ -26,6 +35,7 @@ describe('app', () => {
           return done(err)
         }
         user = res.body
+        console.log('new user created!')
         done()
       })
   })
@@ -37,11 +47,20 @@ describe('app', () => {
       .get('/'+ user._id)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(200, done)
+      .expect(200)
+      .end(function(err, res){
+        if(err){
+          return done(err)
+        }
+        console.log(res.body)
+        done()
+      })
   })
 })
 
-var user2 = {"username":"dr2p","email":"pedoidin@gmail.com","created_at":"2020-08-04T22:52:33.619Z","last_access":["2020-08-04T22:52:33.619Z"]}
+var user2 = JSON.stringify(user)
+var user2 = JSON.parse(user2)
+user2.email = "pedoidin@gmail.com"
 
 describe('app', () => {
   it('Test PUT one', (done) => {
@@ -53,10 +72,12 @@ describe('app', () => {
         if(err){
           return done(err)
         }
+        console.log(res.body)
         done()
       })
   })
 })
+
 
 describe('app', () => {
   it('Test DELETE all', (done) => {
@@ -67,6 +88,7 @@ describe('app', () => {
         if(err){
           return done(err)
         }
+        console.log('user deleted!')
         done()
       })
   })
