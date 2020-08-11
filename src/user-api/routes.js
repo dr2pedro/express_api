@@ -11,7 +11,11 @@ const schema = require('./schemas.js')
 
 const router = express.Router()
 
-router.post('/signup', cors(), async (req, res, next) => {
+
+
+
+
+router.post('/signup', async (req, res, next) => {
   try {
     const { email } = req.body
 
@@ -31,5 +35,26 @@ router.post('/signup', cors(), async (req, res, next) => {
   }
   return null
 })
+
+
+router.post("/signin", async (req, res, next) => {
+  
+  const { email, password } = req.body
+  
+  const payload = await user.findOne({
+    email
+  })
+  
+  if (!payload) 
+  return res.status(400).send({ error: 'User not found'})
+
+  if (!await bcrypt.compare(password, payload.password))
+  return res.status(400).send({ error: 'Invalid password'})
+
+
+
+  res.send({ payload })
+})
+
 
 module.exports = router
