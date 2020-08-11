@@ -6,7 +6,8 @@ const favicon = require('serve-favicon')
 require('dotenv').config()
 
 const middlewares = require('./middlewares')
-const api = require('./api-db/routes')
+const manifest_api = require('./manifest-api/routes')
+const user_api = require('./user-api/routes')
 
 const app = express()
 
@@ -15,8 +16,8 @@ app.use(helmet())
 app.use(express.json())
 app.use(favicon('favicon.ico'))
 
-// caso vire um proxy será preciso inserir uma subrota e ajustar os testes
-app.use('/', api)
+app.use('/', manifest_api)
+app.use('/user', user_api)
 
 // lidando com os erros e retornando em códidos http. Pode ser necessário
 // lidar com outros erros do jeito que está feito qualquer que não seja 200 (ok)

@@ -13,7 +13,7 @@ const manifest = db.get('manifest')
 const cors = require('cors')
 
 /* Esse é o validador do joi. Para uma simples API de Sign up precisa-se de ao menos três campos no form: username, password, e-email. */
-const schema = require('./schema.js')
+const schema = require('./schemas.js')
 
 // resumindo o express.Router para um nome só.
 const router = express.Router()
@@ -36,9 +36,9 @@ router.get('/', async (req, res, next) => {
 router.post('/', cors(), async (req, res, next) => {
   try {
     // aqui entra o validador, não se pode admitir inserções diferentes do que foi planejado de entrada na base de dados.
-    const user = await schema.validateAsync(req.body)
+    const payload = await schema.validateAsync(req.body)
     // insert é a função do Monk para inserção de dados em bancos de dados (tanto SQL quanto noSQL)
-    const inserted = await manifest.insert(user)
+    const inserted = await manifest.insert(payload)
     res.json(inserted)
   } catch (error) {
     next(error)
@@ -73,7 +73,7 @@ router.put('/:id', cors(), async (req, res, next) => {
   try {
     // exatamente a mesma coisa do read one.
     const { id } = req.params
-    const user = await schema.validateAsync(req.body)
+    const payload = await schema.validateAsync(req.body)
     const item = await manifest.findOne({
       _id: id,
     })
@@ -83,10 +83,10 @@ router.put('/:id', cors(), async (req, res, next) => {
     await manifest.update({
       _id: id,
     }, {
-      $set: user,
+      $set: payload,
     })
     // retorne o novo json.
-    res.json(user)
+    res.json(payload)
   } catch (error) {
     next(error)
   }
