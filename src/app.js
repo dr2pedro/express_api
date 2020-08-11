@@ -16,7 +16,7 @@ app.use(helmet())
 app.use(express.json())
 app.use(favicon('favicon.ico'))
 
-app.use('/', manifest_api)
+app.use('/manifest', manifest_api)
 app.use('/user', user_api)
 
 // lidando com os erros e retornando em códidos http. Pode ser necessário

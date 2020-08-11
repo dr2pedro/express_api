@@ -5,15 +5,13 @@ const db = monk(process.env.MONGO_URI)
 const bcrypt = require('bcrypt')
 
 const user = db.get('users')
+const jwt = require('jsonwebtoken')
 
-const cors = require('cors')
 const schema = require('./schemas.js')
 
 const router = express.Router()
 
-
-
-
+const authConfig = require('./config/auth.json')
 
 router.post('/signup', async (req, res, next) => {
   try {
@@ -21,40 +19,44 @@ router.post('/signup', async (req, res, next) => {
 
     if (await user.findOne({ email })) { return res.status(400).send({ error: 'User already exists' }) }
 
-    const payload = await schema.validateAsync(req.body)
-    const hash = await bcrypt.hash(payload.password, 10)
+    const load = await schema.validateAsync(req.body)
+    const hash = await bcrypt.hash(load.password, 10)
 
-    payload.password = hash
+    load.password = hash
 
-    const inserted = await user.insert(payload)
-    inserted.password = undefined
+    const payload = await user.insert(load)
 
-    return res.json(inserted)
+    const token = jwt.sign({ id: payload._id }, authConfig.secret, {
+      expiresIn: 14400
+    })
+
+    payload.password = undefined
+
+    res.send({ payload, token })
   } catch (error) {
     next(error)
   }
   return null
 })
 
-
-router.post("/signin", async (req, res, next) => {
-  
+router.post('/signin', async (req, res) => {
   const { email, password } = req.body
-  
+
   const payload = await user.findOne({
     email
   })
-  
-  if (!payload) 
-  return res.status(400).send({ error: 'User not found'})
 
-  if (!await bcrypt.compare(password, payload.password))
-  return res.status(400).send({ error: 'Invalid password'})
+  if (!payload) return res.status(400).send({ error: 'User not found' })
 
+  if (!await bcrypt.compare(password, payload.password)) return res.status(400).send({ error: 'Invalid password' })
 
+  payload.password = undefined
 
-  res.send({ payload })
+  const token = jwt.sign({ id: payload._id }, authConfig.secret, {
+    expiresIn: 14400
+  })
+
+  return res.send({ payload, token })
 })
-
 
 module.exports = router

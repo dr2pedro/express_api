@@ -15,8 +15,13 @@ const cors = require('cors')
 /* Esse é o validador do joi. Para uma simples API de Sign up precisa-se de ao menos três campos no form: username, password, e-email. */
 const schema = require('./schemas.js')
 
+// middle de login
+const middlewares = require('../middlewares')
+
 // resumindo o express.Router para um nome só.
 const router = express.Router()
+
+router.use(middlewares.guard)
 
 // READ ALL
 router.get('/', async (req, res, next) => {
@@ -24,8 +29,8 @@ router.get('/', async (req, res, next) => {
   try {
     // dar um find vazio, sem paramêtros traz o retorno de toda a base.
     const items = await manifest.find({})
-    // a transfêrencia de dados está em json. Existem outras alternativas.
-    res.json(items)
+    
+    return res.send({user: res.user_id, content: items})
   } catch (error) {
     // next error, permite cair nos middlewares definidos na pasta root.
     next(error)
@@ -39,7 +44,7 @@ router.post('/', cors(), async (req, res, next) => {
     const payload = await schema.validateAsync(req.body)
     // insert é a função do Monk para inserção de dados em bancos de dados (tanto SQL quanto noSQL)
     const inserted = await manifest.insert(payload)
-    res.json(inserted)
+    return res.send({user: res.user_id, content: inserted})
   } catch (error) {
     next(error)
   }
@@ -57,8 +62,8 @@ router.get('/:id', async (req, res, next) => {
     })
     // se não retornar item, manda pro next=middlewares.
     if (!item) return next()
-    // se retonar algo, emite um json.
-    return res.json(item)
+    
+    return res.send({user: res.user_id, content: item})
   } catch (error) {
     next(error)
   }
@@ -85,8 +90,8 @@ router.put('/:id', cors(), async (req, res, next) => {
     }, {
       $set: payload,
     })
-    // retorne o novo json.
-    res.json(payload)
+    
+    return res.send({user: res.user_id, content: item})
   } catch (error) {
     next(error)
   }
