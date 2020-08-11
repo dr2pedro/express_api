@@ -3,8 +3,8 @@ const joi = require('@hapi/joi')
 
 /* Esse é o validador do joi. Para uma simples API de Sign up precisa-se de ao menos três campos no form: username, password, e-email. */
 const schema = joi.object({
-  username: joi.string().trim().required(),
-  email: joi.string().trim().required().email(),
+  username: joi.string().trim(),
+  email: joi.string().trim().email(),
   created_at: joi.date().default(new Date),
   last_access: joi.array().default([
     new Date 

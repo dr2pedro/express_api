@@ -60,7 +60,7 @@ describe('app', () => {
 
 var user2 = JSON.stringify(user)
 var user2 = JSON.parse(user2)
-user2.email = "pedoidin@gmail.com"
+user2.last_access = [new Date]
 
 describe('app', () => {
   it('Test PUT one', (done) => {
