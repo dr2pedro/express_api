@@ -11,17 +11,5 @@ const schema = joi.object({
   ])
 })
 
-/*
-  Esse é o modelo de inserção.
-
-  {
-  "username":"dr2p",
-  "password":MDUxMzA0Nzkx",
-  "email":"dr2p@hotmail.com",
-  "created_at":2020-08-04T22:52:33.619Z",
-  "last_access":["2020-08-04T22:52:33.619Z"]}
-  }
-
-*/
 
 module.exports = schema
