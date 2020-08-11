@@ -7,7 +7,7 @@ const monk = require('monk')
 const db = monk(process.env.MONGO_URI)
 /* esse CRUD é baseado no MongoDB então o connect acima não é direto em uma table e sim em uma coleção.
 abaixo selecionamos o que seria a tabela */
-const users = db.get('users')
+const manifest = db.get('manifest')
 
 // liberando acesso irrestrito apenas para algumas rotas.
 const cors = require('cors')
@@ -23,7 +23,7 @@ router.get('/', async (req, res, next) => {
   // como a comunicação com a base de dados é assíncrona o async, await em um trycatch é a opção escolhida para lidar com o retornos corretamente
   try {
     // dar um find vazio, sem paramêtros traz o retorno de toda a base.
-    const items = await users.find({})
+    const items = await manifest.find({})
     // a transfêrencia de dados está em json. Existem outras alternativas.
     res.json(items)
   } catch (error) {
@@ -38,7 +38,7 @@ router.post('/', cors(), async (req, res, next) => {
     // aqui entra o validador, não se pode admitir inserções diferentes do que foi planejado de entrada na base de dados.
     const user = await schema.validateAsync(req.body)
     // insert é a função do Monk para inserção de dados em bancos de dados (tanto SQL quanto noSQL)
-    const inserted = await users.insert(user)
+    const inserted = await manifest.insert(user)
     res.json(inserted)
   } catch (error) {
     next(error)
@@ -52,7 +52,7 @@ router.get('/:id', async (req, res, next) => {
     // esse parâmetro precisa ser capturado aqui.
     const { id } = req.params
     // e passado a função findOne, também de responsbilidade do Monk, entretando, no MongoDB as variáveis possuem underline na frente.
-    const item = await users.findOne({
+    const item = await manifest.findOne({
       _id: id,
     })
     // se não retornar item, manda pro next=middlewares.
@@ -74,13 +74,13 @@ router.put('/:id', cors(), async (req, res, next) => {
     // exatamente a mesma coisa do read one.
     const { id } = req.params
     const user = await schema.validateAsync(req.body)
-    const item = await users.findOne({
+    const item = await manifest.findOne({
       _id: id,
     })
     if (!item) return next()
     /* ao invés de retornar um json, precisa mudar. A função update é do ORM monk precisa do parâmetro
     e do que vai ser mudado, que no caso é todo o usuário. É possível desconstrui isso para mudar apenas um campo, todo. */
-    await users.update({
+    await manifest.update({
       _id: id,
     }, {
       $set: user,
@@ -97,7 +97,7 @@ router.put('/:id', cors(), async (req, res, next) => {
 router.delete('/:id', cors(), async (req, res, next) => {
   try {
     const { id } = req.params
-    await users.remove({
+    await manifest.remove({
       _id: id
     })
     // o correto de um delete é mandar um status code. Não um json, já que foi deletado.

@@ -5,11 +5,10 @@ const joi = require('@hapi/joi')
 const schema = joi.object({
   username: joi.string().trim(),
   email: joi.string().trim().email(),
-  created_at: joi.date().default(new Date),
+  created_at: joi.date().default(new Date()),
   last_access: joi.array().default([
-    new Date 
+    new Date()
   ])
 })
-
 
 module.exports = schema
