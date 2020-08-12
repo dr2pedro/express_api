@@ -39,6 +39,10 @@ function guard(req, res, next) {
   return null
 }
 
+
+/* tem que ter um middleware que verifica as permissões, que devem ser propriedades dos grupos do usuário
+https://auth0.com/blog/authorization-series-pt-2-securing-http-apis-with-rbac-rules/ */
+
 module.exports = {
   notFound,
   errorHandler,

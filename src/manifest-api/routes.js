@@ -21,10 +21,14 @@ const middlewares = require('../middlewares')
 // resumindo o express.Router para um nome só.
 const router = express.Router()
 
+// esse middleware confere se no header 'authorization' existe o jsonwebtoken que valide o usuário na API
 router.use(middlewares.guard)
 
+
+
+
 // READ ALL
-router.get('/', async (req, res, next) => {
+router.get('/', /* aqui vai entrar um middleware checador de permissões */  async (req, res, next) => {
   // como a comunicação com a base de dados é assíncrona o async, await em um trycatch é a opção escolhida para lidar com o retornos corretamente
   try {
     // dar um find vazio, sem paramêtros traz o retorno de toda a base.
@@ -38,7 +42,7 @@ router.get('/', async (req, res, next) => {
 })
 
 // CREATE ONE
-router.post('/', cors(), async (req, res, next) => {
+router.post('/', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
   try {
     // aqui entra o validador, não se pode admitir inserções diferentes do que foi planejado de entrada na base de dados.
     const payload = await schema.validateAsync(req.body)
@@ -51,7 +55,7 @@ router.post('/', cors(), async (req, res, next) => {
 })
 
 // READ ONE
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', /* aqui vai entrar um middleware checador de permissões */ async (req, res, next) => {
   // repare que a agora existe um parâmetro id ao final da URI.
   try {
     // esse parâmetro precisa ser capturado aqui.
@@ -74,7 +78,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // UPDATE ONE
-router.put('/:id', cors(), async (req, res, next) => {
+router.put('/:id', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
   try {
     // exatamente a mesma coisa do read one.
     const { id } = req.params
@@ -99,7 +103,7 @@ router.put('/:id', cors(), async (req, res, next) => {
 })
 
 // DELETE ONE
-router.delete('/:id', cors(), async (req, res, next) => {
+router.delete('/:id', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
   try {
     const { id } = req.params
     await manifest.remove({
