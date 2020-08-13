@@ -34,7 +34,7 @@ router.get('/', /* aqui vai entrar um middleware checador de permissões */  asy
     // dar um find vazio, sem paramêtros traz o retorno de toda a base.
     const items = await manifest.find({})
     
-    return res.send({user: res.user_id, content: items})
+    return res.send({user: res.user_id /* aqui se coleta as informações passadas no payload do token! */, content: items})
   } catch (error) {
     // next error, permite cair nos middlewares definidos na pasta root.
     next(error)
@@ -67,7 +67,7 @@ router.get('/:id', /* aqui vai entrar um middleware checador de permissões */ a
     // se não retornar item, manda pro next=middlewares.
     if (!item) return next()
     
-    return res.send({user: res.user_id, content: item})
+    return res.send({user: res.user_id,/* aqui se coleta as informações passadas no payload do token! */ content: item})
   } catch (error) {
     next(error)
   }
@@ -95,7 +95,7 @@ router.put('/:id', /* aqui vai entrar um middleware checador de permissões */ c
       $set: payload,
     })
     
-    return res.send({user: res.user_id, content: item})
+    return res.send({user: res.user_id, /* aqui se coleta as informações passadas no payload do token! */content: item})
   } catch (error) {
     next(error)
   }
