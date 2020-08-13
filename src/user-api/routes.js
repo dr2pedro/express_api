@@ -26,7 +26,7 @@ router.post('/signup', async (req, res, next) => {
 
     const payload = await user.insert(load)
 
-    const token = jwt.sign({ id: payload._id }, authConfig.secret, {
+    const token = jwt.sign({ id: payload._id /* aqui entram os outros dados como email, password, username e grupo*/ }, authConfig.secret, {
       expiresIn: 14400
     })
 
@@ -52,7 +52,7 @@ router.post('/signin', async (req, res) => {
 
   payload.password = undefined
 
-  const token = jwt.sign({ id: payload._id }, authConfig.secret, {
+  const token = jwt.sign({ id: payload._id /* aqui entram os outros dados como email, password, username e grupo*/}, authConfig.secret, {
     expiresIn: 14400
   })
 
