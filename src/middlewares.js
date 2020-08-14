@@ -31,15 +31,16 @@ function guard(req, res, next) {
   if (!/^Bearer$/i.test(scheme)) return res.status(401).send({ error: 'This is not the kind of token expected' })
 
   jwt.verify(token, authConfig.secret, (err, decoded) => {
+    
     if (err) return res.status(401).send({ error: 'Token invalid' })
-    res.user_id = decoded.id  
+    
+    return ({id, user, email} = decoded, next())
     
     /* Esse é o user_id que fica aparecendo na saída da api manifest. Ele recebe o token pelo header da requisição 
     e descriptografa para extrair o payload inserido nele. Como nesse commit o payload do signup/signin é só o id
     retornaremos na response o user_id. Caso sejam necessários mais dados como email, senha, username ou grupo, esses
     devem ser inseridos no payload na seção de signin/signup.*/
-
-    return next()
+    
   })
   return null
 }

@@ -34,7 +34,8 @@ router.get('/', /* aqui vai entrar um middleware checador de permissões */  asy
     // dar um find vazio, sem paramêtros traz o retorno de toda a base.
     const items = await manifest.find({})
     
-    return res.send({user: res.user_id /* aqui se coleta as informações passadas no payload do token! */, content: items})
+    return res.send({id: id, user: user, email: email, manifests: items})
+
   } catch (error) {
     // next error, permite cair nos middlewares definidos na pasta root.
     next(error)
@@ -44,11 +45,16 @@ router.get('/', /* aqui vai entrar um middleware checador de permissões */  asy
 // CREATE ONE
 router.post('/', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
   try {
+    
     // aqui entra o validador, não se pode admitir inserções diferentes do que foi planejado de entrada na base de dados.
+    
     const payload = await schema.validateAsync(req.body)
+    
     // insert é a função do Monk para inserção de dados em bancos de dados (tanto SQL quanto noSQL)
+    
     const inserted = await manifest.insert(payload)
-    return res.send({user: res.user_id, content: inserted})
+
+    return res.send({id: id, user: user, email: email, content: inserted})
   } catch (error) {
     next(error)
   }
@@ -67,7 +73,7 @@ router.get('/:id', /* aqui vai entrar um middleware checador de permissões */ a
     // se não retornar item, manda pro next=middlewares.
     if (!item) return next()
     
-    return res.send({user: res.user_id,/* aqui se coleta as informações passadas no payload do token! */ content: item})
+    return res.send({id: id, user: user, email: email, manifest: item})
   } catch (error) {
     next(error)
   }
@@ -95,7 +101,7 @@ router.put('/:id', /* aqui vai entrar um middleware checador de permissões */ c
       $set: payload,
     })
     
-    return res.send({user: res.user_id, /* aqui se coleta as informações passadas no payload do token! */content: item})
+    return res.send({id: id, user: user, email: email, manisfest: item})
   } catch (error) {
     next(error)
   }
