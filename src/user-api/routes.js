@@ -26,11 +26,11 @@ router.post('/signup', async (req, res, next) => {
 
     const payload = await user.insert(load)
 
-    const token = jwt.sign({ 
-      id: payload._id,
-      user: payload.username,
+    const token = jwt.sign({
+      _id: payload._id,
+      username: payload.username,
       email: payload.email
-      }, authConfig.secret, {
+    }, authConfig.secret, {
       expiresIn: 14400
     })
 
@@ -46,7 +46,7 @@ router.post('/signup', async (req, res, next) => {
 router.post('/signin', async (req, res) => {
   const { email, password } = req.body
 
-  const payload = await user.findOne({email})
+  const payload = await user.findOne({ email })
 
   if (!payload) return res.status(400).send({ error: 'User not found' })
 
@@ -54,9 +54,9 @@ router.post('/signin', async (req, res) => {
 
   payload.password = undefined
 
-  const token = jwt.sign({ 
-    id: payload._id,
-    user: payload.username,
+  const token = jwt.sign({
+    _id: payload._id,
+    username: payload.username,
     email: payload.email
   }, authConfig.secret, {
     expiresIn: 14400

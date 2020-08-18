@@ -1,115 +1,82 @@
-// toda nova rota precisa importar a API do express.
 const express = require('express')
-// já que lidamos com uma api de databases, o monk é uma ORM que lida com várias delas de um jeito simples.
 const monk = require('monk')
-
-// esse é o equivalente ao db.connect no monk. process.env faz com que leia no .env a variável.
 const db = monk(process.env.MONGO_URI)
-/* esse CRUD é baseado no MongoDB então o connect acima não é direto em uma table e sim em uma coleção.
-abaixo selecionamos o que seria a tabela */
 const manifest = db.get('manifest')
-
-// liberando acesso irrestrito apenas para algumas rotas.
 const cors = require('cors')
-
-/* Esse é o validador do joi. Para uma simples API de Sign up precisa-se de ao menos três campos no form: username, password, e-email. */
 const schema = require('./schemas.js')
-
-// middle de login
 const middlewares = require('../middlewares')
-
-// resumindo o express.Router para um nome só.
+const { request } = require('express')
+const { string } = require('@hapi/joi')
 const router = express.Router()
+db.addMiddleware(require('monk-middleware-wrap-non-dollar-update'))
 
-// esse middleware confere se no header 'authorization' existe o jsonwebtoken que valide o usuário na API
+
 router.use(middlewares.guard)
 
 
-
-
-// READ ALL
-router.get('/', /* aqui vai entrar um middleware checador de permissões */  async (req, res, next) => {
-  // como a comunicação com a base de dados é assíncrona o async, await em um trycatch é a opção escolhida para lidar com o retornos corretamente
+// GET ALL MANIFESTS
+router.get('/', /* aqui vai entrar um middleware checador de permissões: Anyone */ async (req, res, next) => {
   try {
-    // dar um find vazio, sem paramêtros traz o retorno de toda a base.
     const items = await manifest.find({})
-    
-    return res.send({id: id, user: user, email: email, manifests: items})
-
-  } catch (error) {
-    // next error, permite cair nos middlewares definidos na pasta root.
-    next(error)
-  }
-})
-
-// CREATE ONE
-router.post('/', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
-  try {
-    
-    // aqui entra o validador, não se pode admitir inserções diferentes do que foi planejado de entrada na base de dados.
-    
-    const payload = await schema.validateAsync(req.body)
-    
-    // insert é a função do Monk para inserção de dados em bancos de dados (tanto SQL quanto noSQL)
-    
-    const inserted = await manifest.insert(payload)
-
-    return res.send({id: id, user: user, email: email, content: inserted})
+    const user = {_id, username, email}
+    return res.json(items)
   } catch (error) {
     next(error)
   }
 })
 
-// READ ONE
-router.get('/:id', /* aqui vai entrar um middleware checador de permissões */ async (req, res, next) => {
-  // repare que a agora existe um parâmetro id ao final da URI.
+// GET YOURS MANIFEST
+router.get('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ async (req, res, next) => {
   try {
-    // esse parâmetro precisa ser capturado aqui.
     const { id } = req.params
-    // e passado a função findOne, também de responsbilidade do Monk, entretando, no MongoDB as variáveis possuem underline na frente.
+    const items = await manifest.find({_id: id})
+    return res.json(items)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// POST NEW MANIFEST WITH THE FIRST ORDER 
+router.post('/', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
+  try {
+    const user = {_id, username, email}
+    user.manifest = {"order1": await schema.validateAsync(req.body)}
+    const inserted = await manifest.insert(user)
+    return res.json(inserted)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// POST NEW ORDER
+router.post('/new_order/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
+  try {
+    const user = {_id, username, email}
+    const { id } = req.params
     const item = await manifest.findOne({
       _id: id,
     })
-    // se não retornar item, manda pro next=middlewares.
-    if (!item) return next()
-    
-    return res.send({id: id, user: user, email: email, manifest: item})
+    if (!item) return res.status(404).json("No content, user not found.")
+    let new_order_number= Object.keys(item.manifest).length +1
+    let order = 'order'+ new_order_number
+    let new_order={}
+    new_order[order] = await schema.validateAsync(req.body)
+    user.manifest = {...item.manifest, ...new_order}
+    const new_resquest = await manifest.update({
+      _id: id,
+    },{
+      $set: {
+        manifest: user.manifest
+      }
+    })
+    return res.json(new_resquest)
   } catch (error) {
     next(error)
   }
-  /* considerando que existe parâmetros, parte-se do nulo para inserção de algum parâmetro.
-  Caso seja inserido algum parâmetro não reconhecido, vira erro. Caso insera um válido tem-se o retorno
-  válido. Caso continue sem inserir nada, nada será feito */
-  return null
 })
 
-// UPDATE ONE
-router.put('/:id', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
-  try {
-    // exatamente a mesma coisa do read one.
-    const { id } = req.params
-    const payload = await schema.validateAsync(req.body)
-    const item = await manifest.findOne({
-      _id: id,
-    })
-    if (!item) return next()
-    /* ao invés de retornar um json, precisa mudar. A função update é do ORM monk precisa do parâmetro
-    e do que vai ser mudado, que no caso é todo o usuário. É possível desconstrui isso para mudar apenas um campo, todo. */
-    await manifest.update({
-      _id: id,
-    }, {
-      $set: payload,
-    })
-    
-    return res.send({id: id, user: user, email: email, manisfest: item})
-  } catch (error) {
-    next(error)
-  }
-  return null
-})
-
-// DELETE ONE
-router.delete('/:id', /* aqui vai entrar um middleware checador de permissões */ cors(), async (req, res, next) => {
+// DELETE A MANIFEST
+router.delete('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
     const { id } = req.params
     await manifest.remove({
@@ -121,5 +88,56 @@ router.delete('/:id', /* aqui vai entrar um middleware checador de permissões *
     next(error)
   }
 })
+
+// DELETE AN ORDER
+router.delete('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
+  try {
+    const user = {_id, username, email}
+    const { id, number } = req.params
+    const item = await manifest.findOne({_id: id})
+    if (!item) return res.status(404).json("No content, user not found.")
+    let order = `order${number}`
+    user.manifest = {...item.manifest}
+    if (!user.manifest[order]) return res.status(404).json("No content, order not found.")
+    delete user.manifest[order]
+    const new_resquest = await manifest.update({
+      _id: id,
+    },{
+      $set: {
+        manifest: user.manifest
+      }
+    })
+    return res.json(new_resquest)
+  } catch (error) {
+    next(error)
+  }
+})
+
+//UPDATE AN ORDER
+router.put('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
+  try {
+    const user = {_id, username, email}
+    const { id, number } = req.params
+    const item = await manifest.findOne({_id: id})
+    if (!item) return res.status(404).json("No content, user not found.")
+    var temp = await schema.validateAsync(req.body)
+    let order = `order${number}`
+    user.manifest = {...item.manifest}
+    if (!user.manifest[order]) return res.status(404).json("No content, order not found.")
+    user.manifest[order] = temp
+    
+    const new_resquest = await manifest.update({
+      _id: id,
+    },{
+      $set: {
+        manifest: user.manifest
+      }
+    })
+    return res.json(new_resquest)
+  } catch (error) {
+    next(error)
+  }
+})
+
 
 module.exports = router
