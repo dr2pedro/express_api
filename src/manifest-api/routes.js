@@ -4,13 +4,10 @@ const monk = require('monk')
 const db = monk(process.env.MONGO_URI)
 const manifest = db.get('manifest')
 const cors = require('cors')
-const { request } = require('express')
-const { string } = require('@hapi/joi')
 const schema = require('./schemas.js')
 const middlewares = require('../middlewares')
 
 const router = express.Router()
-db.addMiddleware(require('monk-middleware-wrap-non-dollar-update'))
 
 router.use(middlewares.guard)
 
@@ -18,22 +15,23 @@ router.use(middlewares.guard)
 router.get('/', /* aqui vai entrar um middleware checador de permissões: Anyone */ async (req, res, next) => {
   try {
     const items = await manifest.find({})
-    const user = { _id, username, email }
     return res.json(items)
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 // GET YOURS MANIFEST
 router.get('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ async (req, res, next) => {
   try {
     const { id } = req.params
-    const items = await manifest.find({ _id: id })
+    const items = await manifest.findOne({ _id: id })
     return res.json(items)
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 // POST NEW MANIFEST WITH THE FIRST ORDER
@@ -46,6 +44,7 @@ router.post('/', /* aqui vai entrar um middleware checador de permissões: Own *
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 // POST NEW ORDER
@@ -73,20 +72,21 @@ router.post('/new_order/:id', /* aqui vai entrar um middleware checador de permi
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 // DELETE A MANIFEST
 router.delete('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
     const { id } = req.params
-    await manifest.remove({
-      _id: id
-    })
-    // o correto de um delete é mandar um status code. Não um json, já que foi deletado.
-    res.status(200).send('Success, register deleted!')
+    const items = await manifest.findOne({ _id: id })
+    if (!items) return res.status(404).json('No content, user not found.')
+    await manifest.remove({_id: id})
+    return res.status(200).json('Success, register deleted!')
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 // DELETE AN ORDER
@@ -111,6 +111,7 @@ router.delete('/:number/:id', /* aqui vai entrar um middleware checador de permi
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 // UPDATE AN ORDER
@@ -137,6 +138,7 @@ router.put('/:number/:id', /* aqui vai entrar um middleware checador de permiss�
   } catch (error) {
     next(error)
   }
+  return next()
 })
 
 module.exports = router
