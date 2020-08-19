@@ -9,6 +9,7 @@ module.exports = {
         'no-param-reassign': 0,
         'no-return-assign': 0,
         "max-len": [2, {"code": 200, "tabWidth": 4, "ignoreUrls": true}],
+        "no-undef": ["error", { "typeof": false }],
         semi: [2, "never"],
         camelcase: 0
     }

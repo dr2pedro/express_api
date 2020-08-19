@@ -37,7 +37,9 @@ router.get('/:id', /* aqui vai entrar um middleware checador de permissões: Own
 // POST NEW MANIFEST WITH THE FIRST ORDER
 router.post('/', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
+    /*eslint-disable */
     const user = { _id, username, email }
+    /* eslint-enable */
     user.manifest = { order1: await schema.validateAsync(req.body) }
     const inserted = await manifest.insert(user)
     return res.json(inserted)
@@ -50,7 +52,9 @@ router.post('/', /* aqui vai entrar um middleware checador de permissões: Own *
 // POST NEW ORDER
 router.post('/new_order/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
+    /*eslint-disable */
     const user = { _id, username, email }
+    /* eslint-enable */
     const { id } = req.params
     const item = await manifest.findOne({
       _id: id,
@@ -81,7 +85,7 @@ router.delete('/:id', /* aqui vai entrar um middleware checador de permissões: 
     const { id } = req.params
     const items = await manifest.findOne({ _id: id })
     if (!items) return res.status(404).json('No content, user not found.')
-    await manifest.remove({_id: id})
+    await manifest.remove({ _id: id })
     return res.status(200).json('Success, register deleted!')
   } catch (error) {
     next(error)
@@ -92,7 +96,9 @@ router.delete('/:id', /* aqui vai entrar um middleware checador de permissões: 
 // DELETE AN ORDER
 router.delete('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
+    /*eslint-disable */
     const user = { _id, username, email }
+    /* eslint-enable */
     const { id, number } = req.params
     const item = await manifest.findOne({ _id: id })
     if (!item) return res.status(404).json('No content, user not found.')
@@ -117,7 +123,9 @@ router.delete('/:number/:id', /* aqui vai entrar um middleware checador de permi
 // UPDATE AN ORDER
 router.put('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
+    /*eslint-disable */
     const user = { _id, username, email }
+    /* eslint-enable */
     const { id, number } = req.params
     const item = await manifest.findOne({ _id: id })
     if (!item) return res.status(404).json('No content, user not found.')
