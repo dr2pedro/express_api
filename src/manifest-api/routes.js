@@ -9,7 +9,10 @@ const middlewares = require('../middlewares')
 
 const router = express.Router()
 
+// global use
 router.use(middlewares.guard)
+
+
 
 // GET ALL MANIFESTS
 router.get('/', /* aqui vai entrar um middleware checador de permissões: Anyone */ async (req, res, next) => {
@@ -26,8 +29,9 @@ router.get('/', /* aqui vai entrar um middleware checador de permissões: Anyone
 router.get('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ async (req, res, next) => {
   try {
     const { id } = req.params
-    const items = await manifest.findOne({ _id: id })
-    return res.json(items)
+    const item = await manifest.findOne({ _id: id })
+    if (!item) return res.status(404).json('No content, user not found.')
+    return res.json(item)
   } catch (error) {
     next(error)
   }
@@ -79,20 +83,34 @@ router.post('/new_order/:id', /* aqui vai entrar um middleware checador de permi
   return next()
 })
 
-// DELETE A MANIFEST
-router.delete('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
+// UPDATE AN ORDER
+router.put('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
-    const { id } = req.params
-    const items = await manifest.findOne({ _id: id })
-    if (!items) return res.status(404).json('No content, user not found.')
-    await manifest.remove({ _id: id })
-    return res.status(200).json('Success, register deleted!')
+    /*eslint-disable */
+    const user = { _id, username, email }
+    /* eslint-enable */
+    const { id, number } = req.params
+    const item = await manifest.findOne({ _id: id })
+    if (!item) return res.status(404).json('No content, user not found.')
+    const temp = await schema.validateAsync(req.body)
+    const order = `order${number}`
+    user.manifest = { ...item.manifest }
+    if (!user.manifest[order]) return res.status(404).json('No content, order not found.')
+    user.manifest[order] = temp
+
+    const new_resquest = await manifest.update({
+      _id: id,
+    }, {
+      $set: {
+        manifest: user.manifest
+      }
+    })
+    return res.json(new_resquest)
   } catch (error) {
     next(error)
   }
   return next()
 })
-
 // DELETE AN ORDER
 router.delete('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
@@ -120,29 +138,14 @@ router.delete('/:number/:id', /* aqui vai entrar um middleware checador de permi
   return next()
 })
 
-// UPDATE AN ORDER
-router.put('/:number/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
+// DELETE A MANIFEST
+router.delete('/:id', /* aqui vai entrar um middleware checador de permissões: Own */ cors(), async (req, res, next) => {
   try {
-    /*eslint-disable */
-    const user = { _id, username, email }
-    /* eslint-enable */
-    const { id, number } = req.params
-    const item = await manifest.findOne({ _id: id })
-    if (!item) return res.status(404).json('No content, user not found.')
-    const temp = await schema.validateAsync(req.body)
-    const order = `order${number}`
-    user.manifest = { ...item.manifest }
-    if (!user.manifest[order]) return res.status(404).json('No content, order not found.')
-    user.manifest[order] = temp
-
-    const new_resquest = await manifest.update({
-      _id: id,
-    }, {
-      $set: {
-        manifest: user.manifest
-      }
-    })
-    return res.json(new_resquest)
+    const { id } = req.params
+    const items = await manifest.findOne({ _id: id })
+    if (!items) return res.status(404).json('No content, user not found.')
+    await manifest.remove({ _id: id })
+    return res.status(200).json('Success, register deleted!')
   } catch (error) {
     next(error)
   }
