@@ -5,7 +5,7 @@ const bodyParser = require ('body-parser')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 
-describe('app', () => {
+/* describe('app', () => {
   it('Test GET all', (done) => {
     request(app)
       .get('/')
@@ -20,14 +20,32 @@ describe('app', () => {
         done()
       })
   })
-})
+}) */
 
-var user = {"username":"dr2p","email":"dr2p@hotmail.com"}
+var user = {"username":"dr2p","email":"dr2p@hotmail.com","password": "201608062783"}
+var token = null
 
 describe('app', () => {
-  it('Test POST method for /', (done) => {
+  it('Test signup method', (done) => {
     request (app)
-      .post('/')
+      .post('/user/signup')
+      .send(user)
+      .expect(200)
+      .end(function(err, res){
+        if(err){
+          return done(err)
+        }
+        token = res.body.token
+        console.log(res.body)
+        done()
+      })
+  })
+})
+
+describe('app', () => {
+  it('Test signin method', (done) => {
+    request (app)
+      .post('/user/signin')
       .send(user)
       .expect(200)
       .end(function(err, res){
@@ -35,7 +53,7 @@ describe('app', () => {
           return done(err)
         }
         user = res.body
-        console.log('new user created!')
+        console.log(user)
         done()
       })
   })
@@ -44,8 +62,8 @@ describe('app', () => {
 describe('app', () => {
   it('Test GET one', (done) => {
     request(app)
-      .get('/'+ user._id)
-      .set('Accept', 'application/json')
+      .get('/manifest/'+ user._id)
+      .set('Authorization', 'Bearer '+ token)
       .expect('Content-Type', /json/)
       .expect(200)
       .end(function(err, res){
@@ -58,6 +76,7 @@ describe('app', () => {
   })
 })
 
+/*
 var user2 = JSON.stringify(user)
 var user2 = JSON.parse(user2)
 user2.last_access = [new Date]
@@ -93,3 +112,4 @@ describe('app', () => {
       })
   })
 })
+ */
