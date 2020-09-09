@@ -2,12 +2,15 @@
   "name": "authentication_component",
   "version": "0.0.1",
   "description": " A basic component to implement authentication in APIs.",
-  "main": "signUp/index.js",
   "scripts": {
     "start_signUp": "node signUp/index.js",
+    "start_signIn": "node signIn/index.js",
     "dev_signUp": "nodemon signUp/index.js",
+    "dev_signIn": "nodemon signIn/index.js",
     "lint_signUp": "eslint --fix signUp",
-    "test_signUp": "mocha 'signUp/test/app.test.js' --exit"
+    "lint_signIn": "eslint --fix signIn",
+    "test_signUp": "mocha 'signUp/test/app.test.js' --exit",
+    "test_signIn": "mocha 'signIn/test/app.test.js' --exit"
   },
   "keywords": [],
   "author": "Pedro Paulo dos Santos",
