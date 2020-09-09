@@ -4,6 +4,7 @@ module.exports = {
     },
     extends: 'airbnb-base',
     rules: {
+        "no-console": "off",
         'comma-dangle': 0,
         'no-underscore-dangle': 0,
         'no-param-reassign': 0,
