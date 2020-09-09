@@ -4,10 +4,10 @@
   "description": " A basic component to implement authentication in APIs.",
   "main": "signUp/index.js",
   "scripts": {
-    "start": "node signUp/index.js",
-    "dev": "nodemon signUp/index.js",
-    "lint": "eslint --fix signUp",
-    "test": "mocha 'signUp/test/app.test.js' --exit"
+    "start_signUp": "node signUp/index.js",
+    "dev_signUp": "nodemon signUp/index.js",
+    "lint_signUp": "eslint --fix signUp",
+    "test_signUp": "mocha 'signUp/test/app.test.js' --exit"
   },
   "keywords": [],
   "author": "Pedro Paulo dos Santos",
