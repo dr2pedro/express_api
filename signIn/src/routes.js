@@ -2,21 +2,15 @@ const express = require('express')
 const monk = require('monk')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const cors = require('cors')
 
 const db = monk(process.env.MONGO_URI)
 const user = db.get('users')
 
 const router = express.Router()
 const {secret} = require('../../config/auth.json')
-const {uri_gateway} = require('../../config/auth.json')
 
-var corsOptions = {
-  origin: uri_gateway,
-  optionsSuccessStatus: 200
-}
 
-router.post('/signin', cors(corsOptions), async (req, res, next) => {
+router.post('/signin', async (req, res, next) => {
   try {
     const { email, password } = req.body
     const payload = await user.findOne({ email })
