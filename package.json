@@ -5,8 +5,10 @@
   "scripts": {
     "start_signUp": "node signUp/index.js",
     "start_signIn": "node signIn/index.js",
+    "start_gateway": "node gateway/index.js",
     "dev_signUp": "nodemon signUp/index.js",
     "dev_signIn": "nodemon signIn/index.js",
+    "dev_gateway": "nodemon gateway/index.js",
     "lint_signUp": "eslint --fix signUp",
     "lint_signIn": "eslint --fix signIn",
     "test_signUp": "mocha 'signUp/test/app.test.js' --exit",

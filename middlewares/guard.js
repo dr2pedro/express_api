@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const authConfig = require('../signIn/src/config/auth.json')
+const authConfig = require('../config/auth.json')
 
 function guard(req, res, next) {
   const authHeader = req.headers.authorization
